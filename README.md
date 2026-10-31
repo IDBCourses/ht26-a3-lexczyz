@@ -1,19 +1,22 @@
 # My instrument
 
-**Play it here:** <!-- Paste your GitHub Pages link here, e.g. https://idbcourses.github.io/your-repo-name/ -->
+**Play it here:** <!-- Paste your GitHub Pages link here, e.g. https://idbcourses.github.io/your-repo-name/ --> https://idbcourses.github.io/ht26-a3-lexczyz/
 
-**Name:** <!-- Your name and MAU ID -->
+**Name:** <!-- Your name and MAU ID --> AO5056
 
 <!-- One or two sentences: what kind of instrument is it, and what is it like to play? -->
+Instrument that allows you to play with Kiki (square) and Bouba (circle).
 
 ## How to play
 
 <!-- Fill in the table with a row for everything the player can do with the pointer: clicking, moving slowly or fast, moving in circles, holding still... Say what happens to the sound and to the shapes. If you added keys, give them rows too. -->
 
-| When you...  | The sound...                         | The shapes... |
-| ------------ | ------------------------------------ | ------------- |
-| Click or tap | Plays a C4 (the example: replace it) | Nothing yet   |
-|              |                                      |               |
+| When you...                                     | Sound effect                            | Shape effect                                   |
+| ----------------------------------------------- | --------------------------------------- | ---------------------------------------------- |
+| Click on the shape                              | Plays or stops music                    | The shape gets coloured or transparent         |
+| Double click on the shape                       | Plays or stops music                    | The shape gets reset                           |
+| Drag the stroke of the shape                    | The pitch gets lower or higher          | The stroke gets thinner or fatter              |
+| Scroll the touchpad while hovering over shape   | The sound gets quieter or louder        | The shape gets smaller or bigger               |
 
 <!-- Anything else a player needs to know: how to get started, a good thing to try first. -->
 
