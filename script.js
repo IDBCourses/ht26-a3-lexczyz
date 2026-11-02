@@ -62,7 +62,7 @@ const state = {
     playing: false, //no music
     size: settings.initialSize, //initial size
     stroke: settings.initialStroke, //initrial stroke
-    frequency: settings.initialKikiFrequency, //initial requency
+    frequency: settings.initialKikiFrequency, //initial frequency
     x: 0, //position axis x
     y: 0, //position axis y
     interval: settings.kikiInterval, //interval between sounds for kiki
@@ -72,23 +72,23 @@ const state = {
 
   bouba: {
     shape: null,
-    playing: false,
-    size: settings.initialSize,
-    stroke: settings.initialStroke,
-    frequency: settings.initialBoubaFrequency,
-    x: 0,
-    y: 0,
-    interval: settings.boubaInterval,
-    elapsed: 0,
+    playing: false, //no music
+    size: settings.initialSize, //initial size
+    stroke: settings.initialStroke, //initial stroke
+    frequency: settings.initialBoubaFrequency, //initial frequency
+    x: 0, //position axis x
+    y: 0, //position axis y
+    interval: settings.boubaInterval, //interval between sounds for bouba
+    elapsed: 0, //time between sounds, has to start with 0
     lastSize: null
   },
 
   pointer: {
-    activeInstrument: null,
-    dragging: false,
-    startX: 0,
+    activeInstrument: null, //no music
+    dragging: false, //tells if its moving or clicking
+    startX: 0, //start position
     startY: 0,
-    lastX: 0,
+    lastX: 0, //end position
     lastY: 0
   }
 };
@@ -96,63 +96,67 @@ const state = {
 // ---------- Sound ----------
 // Make the instruments and plug them into the speakers.
 const sound = {
-  kiki: null,
-  bouba: null
+  kiki: null, //no sound
+  bouba: null //no sound
 };
 
 function createSounds() {
   sound.kiki = new Tone.Synth({
     oscillator: {
-      type: "square"
+      type: "square" //soound type
     },
     envelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.3,
-      release: 0.1
+      attack: 0.01, //starts
+      decay: 0.1, //decreases after attack
+      sustain: 0.3, //volume level while the note is held
+      release: 0.1 //fadeout
     }
-  }).toDestination();
+  }).toDestination(); //going to the speakers
 
   sound.bouba = new Tone.Synth({
     oscillator: {
       type: "sine"
     },
     envelope: {
-      attack: 0.01,
-      decay: 0.1,
-      sustain: 0.3,
-      release: 0.1
+      attack: 0.01, //starts
+      decay: 0.1, //decreases after attack
+      sustain: 0.3, //volume level while the note is held
+      release: 0.1 //fadeout
     }
-  }).toDestination();
+  }).toDestination(); //going to the speakers
 }
 
 function updateVolume(name) {
   const instrument = state[name];
 
+  //converts the shape size into a value between 0 and 1
   const proportion =
     (instrument.size - settings.minSize) /
     (settings.maxSize - settings.minSize);
 
+  //maps the size to a volume range from -35 dB to 0 dB
   const volume = -35 + proportion * 35;
 
+  //keeps the volume within range
   sound[name].volume.value = Math.max(-35, Math.min(0, volume));
 }
 
 function stopSound(name) {
-  state[name].playing = false;
-  state[name].elapsed = 0;
+  state[name].playing = false; //marks the instrument as stopped
+  state[name].elapsed = 0; //resets the sound timing
 
-  sound[name].triggerRelease();
+  sound[name].triggerRelease(); //fades out the current note
 }
 
 async function toggleSound(name) {
-  await Tone.start();
+  await Tone.start(); //starts the audio after interaction
 
+  //switches between playing and stopped
   if (state[name].playing) {
     stopSound(name);
   } else {
     state[name].playing = true;
-    state[name].elapsed = 0;
+    state[name].elapsed = 0; //resets timing when music starts
   }
 }
 
@@ -162,7 +166,7 @@ function updateAppearance(name) {
     const instrument = state[name];
     const element = instrument.shape.element;
 
-    //stroke
+    //stroke, $ template literals for variables
     element.style.border = `${instrument.stroke}px solid #252525`;
 
     //coloured when active
@@ -175,34 +179,37 @@ function update() {
 for (const name of ["kiki", "bouba"]) {
     const instrument = state[name];
 
+    //keeps it within the min and max
     instrument.size = Math.max(
       settings.minSize,
       Math.min(settings.maxSize, instrument.size)
     );
 
+    //keeps it within the min and max
     instrument.frequency = Math.max(
       settings.minFrequency,
       Math.min(settings.maxFrequency, instrument.frequency)
     );
   }
-
+  //runs the update function again after the specified interval
   setTimeout(update, settings.updateInterval);
 }
 
 // ---------- Use ----------
 // Use the state to make sound and move shapes. This is called every 100ms.
 function use() {
+  //updates shapes
 for (const name of ["kiki", "bouba"]) {
     const instrument = state[name];
     const synth = sound[name];
 
-    // state
+    //applies the current size and position to the shape
     instrument.shape
       .setSize(instrument.size)
       .setPositionPixels(instrument.x, instrument.y)
       updateAppearance(name);
 
-    //volume
+    //updates volume only when the shape size changes, !==
     if (instrument.lastSize !== instrument.size) {
       updateVolume(name);
       instrument.lastSize = instrument.size;
@@ -210,47 +217,62 @@ for (const name of ["kiki", "bouba"]) {
 
     //notes + rhythm
     if (instrument.playing) {
+      //tracks elapsed time meanwhile
       instrument.elapsed += settings.updateInterval;
 
+      //plays a new note when the instrument's interval is reached
       if (instrument.elapsed >= instrument.interval) {
         synth.triggerAttackRelease(
           instrument.frequency,
           "8n"
         );
 
+        //resets the timer for the next note
         instrument.elapsed = 0;
       }
     }
   }
-
+  //repeats the function after the interval
   setTimeout(use, settings.updateInterval);
 }
 
 // ---------- Controls (Event Handlers) ----------
-//uns every time the pointer goes down: a click, a tap or a pen touch.
+//runs every time the pointer does
+//checks if the event target is a valid HTML element
 function getInstrumentName(target) {
   if (!(target instanceof Element)) return null;
 
+  //if happened on kiki or bouba
   if (target.closest("#kiki")) return "kiki";
   if (target.closest("#bouba")) return "bouba";
 
+//nothing if neither
   return null;
 }
 
+//identifies which instrument the pointer interacts with
 function pointerDown(event) {
   const name = getInstrumentName(event.target);
 
+  //stops the function if the pointer is outside of both
   if (!name) return;
 
+  //prevents the browser's default pointer behaviour
   event.preventDefault();
 
   const pointer = state.pointer;
 
+  //which instrument is currently being interacted with
   pointer.activeInstrument = name;
+
+  //assumption of clicking
   pointer.dragging = false;
 
+  //start position
   pointer.startX = event.clientX;
   pointer.startY = event.clientY;
+
+  //current position for movement calculations
   pointer.lastX = event.clientX;
   pointer.lastY = event.clientY;
 }
@@ -258,13 +280,17 @@ function pointerDown(event) {
 function pointerMove(event) {
     const pointer = state.pointer;
 
+    //checks whether an instrument is currently being interacted with
     if (!pointer.activeInstrument) return;
 
     const instrument = state[pointer.activeInstrument];
 
+    //calculates pointer movement since the previous event
     const dx = event.clientX - pointer.lastX;
     const dy = event.clientY - pointer.lastY;
 
+
+    //detects dragging when the pointer moves more than 4 pixels
     if (
         Math.abs(event.clientX - pointer.startX) > 4 ||
         Math.abs(event.clientY - pointer.startY) > 4
@@ -272,6 +298,7 @@ function pointerMove(event) {
         pointer.dragging = true;
     }
 
+    //stops here if the movement is too small to count as dragging
     if (!pointer.dragging) return;
 
     //vertical changes pitch
@@ -280,6 +307,7 @@ function pointerMove(event) {
     //horizontal changes stroke thickness
     instrument.stroke += dx * 0.25;
 
+    //keeps stroke thickness within the allowed range
     instrument.stroke = Math.max(
         settings.minStroke,
         Math.min(settings.maxStroke, instrument.stroke)
@@ -293,27 +321,35 @@ function pointerUp() {
   const pointer = state.pointer;
   const name = pointer.activeInstrument;
 
+  //toggles the sound if the interaction was a click
   if (name && !pointer.dragging) {
     toggleSound(name);
   }
 
+  //resets the pointer interaction state
   pointer.activeInstrument = null;
   pointer.dragging = false;
 }
 
 function wheel(event) {
+  //identifies which shape the pointer is hovering over
   const name = getInstrumentName(event.target);
 
+  //stops if the pointer is outside both
   if (!name) return;
 
+  //prevents the page from scrolling while interacting with a shape
   event.preventDefault();
 
   const instrument = state[name];
 
+  //controls how quickly the shape changes size
   const sensitivity = 0.5;
 
+  //changes the shape size based on the scroll movement
   instrument.size -= event.deltaY * sensitivity;
 
+  //keeps the shape size within the range
   instrument.size = Math.max(
     settings.minSize,
     Math.min(settings.maxSize, instrument.size)
@@ -321,16 +357,19 @@ function wheel(event) {
 }
 
 function resetInstrument(name) {
-  stopSound(name);
+    //stops the sound before resetting the instrument
+    stopSound(name);
 
   const instrument = state[name];
 
+  //restores the original size
   instrument.size = settings.initialSize;
   instrument.frequency =
     name === "kiki"
       ? settings.initialKikiFrequency
       : settings.initialBoubaFrequency;
 
+  //volume update after the size reset
   instrument.lastSize = null;
 }
 
@@ -357,19 +396,25 @@ function setup() {
     const height = window.innerHeight;
     const size = settings.initialSize;
 
+    //positions in the left half of the screen
     state.kiki.x = width * 0.25 - size / 2;
     state.kiki.y = height * 0.45 - size / 2;
 
+    //positions in the right half of the screen
     state.bouba.x = width * 0.75 - size / 2;
     state.bouba.y = height * 0.45 - size / 2;
   }
 
+  //sets the initial positions for both
   positionShapes();
 
+  //repositions the shapes when the browser window changes size
   window.addEventListener("resize", positionShapes);
 
+   //creates the sound synthesizers
   createSounds();
 
+  //registers pointer and scroll event listeners
   document.addEventListener("pointerdown", pointerDown);
   document.addEventListener("pointermove", pointerMove);
   document.addEventListener("pointerup", pointerUp);
@@ -378,7 +423,9 @@ function setup() {
     passive: false
   });
 
+  //starts the update and use loops
   update();
   use();
 }
+//runs the setup function when the program loads
 setup(); // Always remember to call setup()!
