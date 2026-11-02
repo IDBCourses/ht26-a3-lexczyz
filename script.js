@@ -356,23 +356,6 @@ function wheel(event) {
   );
 }
 
-function resetInstrument(name) {
-    //stops the sound before resetting the instrument
-    stopSound(name);
-
-  const instrument = state[name];
-
-  //restores the original size
-  instrument.size = settings.initialSize;
-  instrument.frequency =
-    name === "kiki"
-      ? settings.initialKikiFrequency
-      : settings.initialBoubaFrequency;
-
-  //volume update after the size reset
-  instrument.lastSize = null;
-}
-
 // ---------- Setup ----------
 // Setup is run once, at the start of the program. It sets everything up for us!
 function setup() {
