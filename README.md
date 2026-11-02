@@ -14,8 +14,7 @@ Instrument that allows you to play with Kiki (square) and Bouba (circle).
 | When you...                                     | Sound effect                            | Shape effect                                   |
 | ----------------------------------------------- | --------------------------------------- | ---------------------------------------------- |
 | Click on the shape                              | Plays or stops music                    | The shape gets coloured or transparent         |
-| Double click on the shape                       | Plays or stops music                    | The shape gets reset                           |
-| Drag the stroke of the shape                    | The pitch gets lower or higher          | The stroke gets thinner or fatter              |
+| Drag a corner towards the centre of the shape   | The pitch gets lower or higher          | The stroke gets thinner or fatter              |
 | Scroll the touchpad while hovering over shape   | The sound gets quieter or louder        | The shape gets smaller or bigger               |
 
 <!-- Anything else a player needs to know: how to get started, a good thing to try first. -->
